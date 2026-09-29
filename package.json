@@ -1,0 +1,11 @@
+{
+  "name": "vk01-ai-hud",
+  "version": "1.0.0",
+  "description": "VECTR // ANTICATER VK01 Bimodal AI Operating Surface (Webcam Gaze + JEV System-1 + DiffusionGemma Block Diffusion)",
+  "type": "module",
+  "scripts": {
+    "build:bridge": "swiftc -O macos-vk01-bridge/vk01_bridge.swift -o macos-vk01-bridge/vk01_bridge -framework Cocoa -framework IOKit -framework CoreAudio -framework AudioToolbox",
+    "dev": "node server.mjs",
+    "start": "node server.mjs"
+  }
+}

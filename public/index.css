@@ -1,0 +1,1188 @@
+/* ============================================================================
+   VECTR // ANTICATER VK01 BIMODAL AI OPERATING SURFACE
+   Precision Industrial Instrument Design System (6063 CNC Aluminum + Phosphor)
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  /* Curated HSL Industrial Hardware Palette */
+  --bg-chassis: hsl(210, 10%, 8%);
+  --bg-panel: hsl(210, 9%, 11.5%);
+  --bg-elevated: hsl(210, 8%, 15%);
+  --bg-recessed: hsl(210, 11%, 6.5%);
+  --bg-glass: hsla(210, 10%, 11%, 0.88);
+
+  /* Machined Surface Hairlines & Bevels */
+  --border-hairline: hsl(210, 7%, 19%);
+  --border-strong: hsl(210, 8%, 26%);
+  --bevel-top: inset 0 1px 0 hsla(210, 20%, 96%, 0.06);
+  --shadow-instrument: 0 18px 40px -12px hsla(210, 30%, 2%, 0.75);
+
+  /* Typography Hierarchy */
+  --text-primary: hsl(210, 14%, 93%);
+  --text-secondary: hsl(210, 9%, 66%);
+  --text-muted: hsl(210, 7%, 44%);
+
+  /* Precision Signal Accents (Zero Purple) */
+  --signal-orange: hsl(16, 90%, 54%);
+  --signal-orange-soft: hsla(16, 90%, 54%, 0.14);
+  --signal-amber: hsl(39, 94%, 54%);
+  --signal-amber-soft: hsla(39, 94%, 54%, 0.14);
+  --signal-emerald: hsl(152, 68%, 45%);
+  --signal-emerald-soft: hsla(152, 68%, 45%, 0.14);
+  --signal-cyan: hsl(192, 82%, 52%);
+  --signal-cyan-soft: hsla(192, 82%, 52%, 0.14);
+
+  /* Font Stacks */
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Physics-Based Spring Easing (Baseline Widely Available linear() with fallback) */
+  --ease-out-fallback: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring-easing: linear(
+    0, 0.016 0.5%, 0.06 1%, 0.226 2%, 1.116 5.4%, 1.32 6.6%, 1.41 7.7%,
+    1.38 9.3%, 1.25 10.9%, 0.96 14.3%, 0.86 16.6%, 0.89 19.8%, 1.03 24.5%,
+    1.06 26.7%, 0.98 33.4%, 0.97 36.6%, 1.01 44.5%, 1
+  );
+  --detent-snap: linear(
+    0, 0.42 12%, 0.86 26%, 1.08 42%, 1.02 58%, 0.99 76%, 1
+  );
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-chassis);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  selection-background-color: var(--signal-orange);
+}
+
+/* Subtle anodized aluminum micro-grain surface texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================================
+   TOP INSTRUMENT HEADER BAR
+   ============================================================================ */
+.top-telemetry-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-hairline);
+  box-shadow: var(--bevel-top);
+  position: sticky;
+  top: 0;
+  z-index: 60;
+}
+
+.brand-cluster {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hardware-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.status-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal-emerald);
+}
+
+.status-led.pulse {
+  transform: scale(1.35);
+  background: var(--signal-orange);
+  transition: transform 0.18s ease-out;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.app-subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.telemetry-readouts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.readout-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.readout-chip strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.btn-instrument {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--bevel-top);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.btn-instrument:hover {
+  background: hsl(210, 8%, 19%);
+}
+
+.btn-instrument:active {
+  transform: translateY(1px);
+}
+
+.btn-instrument.active-gaze {
+  background: var(--signal-amber-soft);
+  color: var(--signal-amber);
+  border-color: hsla(39, 94%, 54%, 0.45);
+}
+
+.btn-instrument.primary-action {
+  background: var(--signal-orange);
+  color: hsl(210, 15%, 6%);
+  border-color: var(--signal-orange);
+  font-weight: 700;
+}
+
+.btn-instrument.primary-action:hover {
+  background: hsl(16, 92%, 60%);
+}
+
+/* ============================================================================
+   MAIN WORKBENCH LAYOUT (LEFT HARDWARE CONSOLE + RIGHT 3-TARGET OPERATING FIELD)
+   ============================================================================ */
+.workbench-shell {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  min-height: calc(100vh - 53px);
+}
+
+@media (max-width: 1120px) {
+  .workbench-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   LEFT COLUMN: CNC ALUMINUM VK01 HARDWARE TWIN & GAZE/HID INSTRUMENT RACK
+   ============================================================================ */
+.hardware-rack {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-hairline);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rack-module {
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  padding: 14px;
+  box-shadow: var(--bevel-top);
+}
+
+.module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.module-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.module-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* CNC 6063 Aluminum Rotary Knob Visual Twin */
+.vk01-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 6px;
+  position: relative;
+}
+
+.vk01-dial-assembly {
+  position: relative;
+  width: 188px;
+  height: 188px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: grab;
+}
+
+.vk01-dial-assembly:active {
+  cursor: grabbing;
+}
+
+.vk01-tick-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.vk01-cnc-housing {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  /* Machined 6063 sandblasted aluminum conic & radial sheen */
+  background:
+    radial-gradient(circle at 32% 28%, hsla(210, 15%, 35%, 0.45), transparent 60%),
+    conic-gradient(
+      from 0deg,
+      hsl(210, 6%, 18%),
+      hsl(210, 7%, 25%) 45deg,
+      hsl(210, 6%, 15%) 95deg,
+      hsl(210, 8%, 27%) 160deg,
+      hsl(210, 6%, 16%) 225deg,
+      hsl(210, 7%, 26%) 300deg,
+      hsl(210, 6%, 18%) 360deg
+    );
+  border: 2px solid hsl(210, 8%, 30%);
+  box-shadow:
+    0 12px 24px hsla(0, 0%, 0%, 0.65),
+    inset 0 2px 3px hsla(210, 20%, 90%, 0.14),
+    inset 0 -3px 6px hsla(0, 0%, 0%, 0.6);
+  position: relative;
+  transition: transform 0.28s var(--ease-out-fallback);
+  transition: transform 0.28s var(--detent-snap);
+}
+
+.vk01-dial-assembly.is-pushed .vk01-cnc-housing {
+  transform: scale(0.94) rotate(var(--knob-deg, 0deg));
+  box-shadow:
+    0 4px 10px hsla(0, 0%, 0%, 0.8),
+    inset 0 1px 2px hsla(39, 94%, 54%, 0.35);
+}
+
+.vk01-knurl-ring {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 1px dashed hsla(210, 12%, 75%, 0.18);
+  background: radial-gradient(circle at 50% 50%, hsl(210, 8%, 13%), hsl(210, 7%, 17%));
+}
+
+.vk01-position-notch {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--signal-orange);
+}
+
+.vk01-dial-assembly.is-pushed .vk01-position-notch {
+  background: var(--signal-amber);
+}
+
+.vk01-center-cap {
+  position: absolute;
+  inset: 34px;
+  border-radius: 50%;
+  background: hsl(210, 9%, 11%);
+  border: 1px solid hsl(210, 7%, 22%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.vk01-center-cap .cap-mode {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.vk01-center-cap .cap-val {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 1px;
+}
+
+/* 5-Gesture Live Matrix */
+.gesture-matrix {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.gesture-cell {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: 4px;
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.gesture-cell:hover {
+  background: var(--bg-elevated);
+}
+
+.gesture-cell.span-2 {
+  grid-column: span 2;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gesture-cell.flash-active {
+  background: var(--signal-orange-soft);
+  border-color: var(--signal-orange);
+}
+
+.gesture-cell.flash-axis2 {
+  background: var(--signal-amber-soft);
+  border-color: var(--signal-amber);
+}
+
+.gesture-cell .g-physical {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.gesture-cell .g-mapping {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Webcam Gaze & Iris Telemetry Module */
+.webcam-viewport {
+  position: relative;
+  width: 100%;
+  height: 138px;
+  background: hsl(210, 14%, 5%);
+  border: 1px solid var(--border-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.webcam-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  opacity: 0.82;
+}
+
+.webcam-overlay-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+.webcam-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+  background: hsla(210, 12%, 7%, 0.9);
+}
+
+.webcam-placeholder p {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.hid-log-list {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 112px;
+  overflow-y: auto;
+}
+
+.hid-log-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 6px;
+  background: var(--bg-panel);
+  border-radius: 3px;
+}
+
+.hid-log-entry .evt-src {
+  color: var(--signal-emerald);
+}
+
+/* ============================================================================
+   RIGHT COLUMN: BIMODAL OPERATING FIELD (THE 3 GAZE-SNAPPABLE AI TARGETS)
+   ============================================================================ */
+.operating-field {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
+}
+
+/* Active Context Banner */
+.bimodal-context-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  box-shadow: var(--bevel-top);
+}
+
+.noun-verb-readout {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.nv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.nv-pill .nv-tag {
+  color: var(--text-secondary);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.nv-pill.noun-active .nv-val {
+  color: var(--signal-amber);
+  font-weight: 600;
+}
+
+.nv-pill.axis1-active .nv-val {
+  color: var(--signal-orange);
+  font-weight: 600;
+}
+
+.nv-pill.axis2-active .nv-val {
+  color: var(--signal-emerald);
+  font-weight: 600;
+}
+
+/* Target Canvases Grid */
+.targets-grid {
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: 18px;
+}
+
+@media (max-width: 1360px) {
+  .targets-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.semantic-target-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: var(--bevel-top), var(--shadow-instrument);
+  position: relative;
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.25s var(--ease-out-fallback);
+}
+
+.semantic-target-card.span-full {
+  grid-column: 1 / -1;
+}
+
+/* Magnetic Gaze Target Lock State */
+.semantic-target-card.gaze-locked {
+  border-color: hsl(210, 14%, 44%);
+  background: hsl(210, 9%, 12.5%);
+}
+
+.target-lock-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--bg-recessed);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-hairline);
+}
+
+.semantic-target-card.gaze-locked .target-lock-indicator {
+  background: var(--signal-amber-soft);
+  color: var(--signal-amber);
+  border-color: hsla(39, 94%, 54%, 0.4);
+}
+
+.target-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.target-title-group h2 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.target-title-group p {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+/* Radial Detent Gauge Bar on Each Card */
+.detent-scrubber-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 5px;
+  margin-bottom: 14px;
+}
+
+.detent-steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.detent-pip {
+  flex: 1;
+  height: 26px;
+  border-radius: 3px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.16s var(--ease-out-fallback);
+}
+
+.detent-pip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.detent-pip.active {
+  background: var(--signal-orange);
+  color: hsl(210, 15%, 6%);
+  border-color: var(--signal-orange);
+  font-weight: 700;
+  transform: translateY(-1px);
+}
+
+.detent-pip.past {
+  background: var(--signal-orange-soft);
+  color: var(--signal-orange);
+  border-color: hsla(16, 90%, 54%, 0.35);
+}
+
+/* ============================================================================
+   TARGET 1: JEV SYSTEM-1 COMPUTER-USE & SPECULATIVE FUTURE SCRUBBER
+   ============================================================================ */
+.jev-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 14px;
+}
+
+@media (max-width: 920px) {
+  .jev-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.live-app-viewport {
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  padding: 14px;
+  position: relative;
+  min-height: 290px;
+  overflow: hidden;
+}
+
+.sim-window-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-hairline);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.dom-nodes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.dom-node-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: 5px;
+  padding: 10px 12px;
+  position: relative;
+  transition: transform 0.22s var(--ease-out-fallback), background 0.18s ease, border-color 0.18s ease;
+}
+
+.dom-node-box.span-2 {
+  grid-column: span 2;
+}
+
+.dom-node-box .dom-id-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.dom-node-box .dom-label {
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+
+.dom-node-box .dom-value {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--signal-emerald);
+  margin-top: 4px;
+}
+
+.dom-node-box.speculative-active {
+  background: var(--signal-orange-soft);
+  border-color: var(--signal-orange);
+  transform: scale(1.015);
+}
+
+.dom-node-box.committed-done {
+  background: var(--signal-emerald-soft);
+  border-color: hsla(152, 68%, 45%, 0.45);
+}
+
+/* Speculative Ghost Cursor Overlay */
+.ghost-cursor-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.ghost-cursor-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: left 0.32s var(--spring-easing), top 0.32s var(--spring-easing);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ghost-reticle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--signal-orange);
+  background: hsla(16, 90%, 54%, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ghost-reticle::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signal-orange);
+}
+
+.ghost-tag {
+  background: hsl(210, 12%, 8%);
+  border: 1px solid var(--signal-orange);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px hsla(0, 0%, 0%, 0.6);
+}
+
+/* JEV Typed Distributions Panel (Choice / Score / Noul) */
+.jev-distributions-panel {
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jev-primitive-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.primitive-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+
+.choice-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  cursor: pointer;
+  transition: border-color 0.14s ease;
+}
+
+.choice-bar-row.selected-branch {
+  border-color: var(--signal-amber);
+  background: var(--signal-amber-soft);
+}
+
+.choice-bar-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.choice-bar-track {
+  width: 100%;
+  height: 5px;
+  background: var(--bg-recessed);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.choice-bar-fill {
+  height: 100%;
+  background: var(--signal-orange);
+  transition: width 0.24s var(--ease-out-fallback);
+}
+
+.choice-bar-row.selected-branch .choice-bar-fill {
+  background: var(--signal-amber);
+}
+
+.noul-score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.metric-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: 4px;
+  padding: 8px;
+  font-family: var(--font-mono);
+}
+
+.metric-box .m-lbl {
+  font-size: 9.5px;
+  color: var(--text-secondary);
+}
+
+.metric-box .m-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+/* ============================================================================
+   TARGET 2: DIFFUSIONGEMMA 256-TOKEN BLOCK-DIFFUSION ENTROPY SCULPTOR
+   ============================================================================ */
+.diffusion-canvas-box {
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  min-height: 225px;
+  white-space: pre-wrap;
+  position: relative;
+}
+
+.diff-token {
+  display: inline-block;
+  border-radius: 3px;
+  padding: 0 2px;
+  transition: background-color 0.16s ease, color 0.16s ease, transform 0.18s var(--ease-out-fallback);
+  position: relative;
+}
+
+/* Frozen Low-Entropy Anchor Token */
+.diff-token.locked-anchor {
+  color: var(--text-primary);
+}
+
+/* Recently Crystallized Token */
+.diff-token.crystallized {
+  color: var(--signal-emerald);
+  background: var(--signal-emerald-soft);
+}
+
+/* Fluid High-Entropy Unlocked Token (In Superposition) */
+.diff-token.fluid-entropy {
+  color: var(--signal-orange);
+  background: var(--signal-orange-soft);
+  border-bottom: 1px dashed var(--signal-orange);
+  cursor: pointer;
+}
+
+.diff-token.fluid-entropy:hover::after {
+  content: attr(data-alts);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: hsl(210, 12%, 7%);
+  border: 1px solid var(--signal-orange);
+  color: var(--text-primary);
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  z-index: 30;
+}
+
+.entropy-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.prompt-inject-form {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.input-instrument {
+  flex: 1;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.input-instrument:focus {
+  outline: 1px solid var(--signal-orange);
+}
+
+/* ============================================================================
+   TARGET 3: SEMANTIC ZOOM & LADDER OF ABSTRACTION (-3 TO +3)
+   ============================================================================ */
+.semantic-lens-stage {
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  padding: 14px;
+  min-height: 225px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.abstraction-morph-content {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+.anchor-pin-token {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: hsla(39, 94%, 54%, 0.16);
+  color: var(--signal-amber);
+  font-weight: 600;
+}
+
+.lens-meta-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-hairline);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ============================================================================
+   FLOATING MAGNETIC GAZE SPOTLIGHT & 4-POINT VK01 CALIBRATION OVERLAY
+   ============================================================================ */
+.gaze-reticle-hud {
+  position: fixed;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--signal-amber);
+  background: radial-gradient(circle, hsla(39, 94%, 54%, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 900;
+  transform: translate(-50%, -50%);
+  transition: width 0.15s ease, height 0.15s ease;
+  display: none;
+}
+
+.gaze-reticle-hud.visible {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gaze-reticle-hud::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--signal-amber);
+}
+
+.calibration-modal {
+  position: fixed;
+  inset: 0;
+  background: hsla(210, 14%, 5%, 0.92);
+  z-index: 950;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.calibration-modal.open {
+  display: flex;
+}
+
+.calib-point {
+  position: fixed;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--signal-orange);
+  background: var(--signal-orange-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform 0.25s var(--spring-easing);
+}
+
+.calib-instructions {
+  max-width: 460px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.calib-instructions h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.calib-instructions p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    transition: none !important;
+  }
+}

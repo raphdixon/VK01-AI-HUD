@@ -1,0 +1,4 @@
+node_modules/
+.DS_Store
+macos-vk01-bridge/vk01_bridge
+*.log

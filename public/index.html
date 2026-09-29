@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VECTR // ANTICATER VK01 Bimodal AI Operating Surface — Gaze + JEV + DiffusionGemma</title>
+  <meta
+    name="description"
+    content="Tactile bimodal AI operating surface for the ANTICATER VK01 CNC Rotary Knob: combining Webcam Eye-Tracking, JEV System-1 action distribution scrubbing, and DiffusionGemma 26B-A4B block-diffusion entropy sculpting."
+  />
+  <link rel="stylesheet" href="/index.css" />
+</head>
+<body>
+  <!-- Floating Magnetic Gaze Reticle HUD -->
+  <div id="gaze-reticle-hud" class="gaze-reticle-hud" aria-hidden="true"></div>
+
+  <!-- 4-Corner Hands-Free Look + VK01 Click Calibration Modal -->
+  <div id="calibration-modal" class="calibration-modal" role="dialog" aria-labelledby="calib-modal-title">
+    <div id="calib-point-target" class="calib-point" style="top: 15%; left: 15%;">1/4</div>
+    <div class="calib-instructions">
+      <h3 id="calib-modal-title">Bimodal Gaze + VK01 Calibration</h3>
+      <p>
+        Look directly at the highlighted orange reticle corner and <strong>CLICK your ANTICATER VK01 Knob</strong>
+        (or press <code>Space</code> / click the target) to lock each of the 4 calibration anchors.
+      </p>
+      <button id="btn-cancel-calib" class="btn-instrument" type="button">Cancel Calibration (Esc)</button>
+    </div>
+  </div>
+
+  <!-- Top Precision Instrument Telemetry Header -->
+  <header class="top-telemetry-bar">
+    <div class="brand-cluster">
+      <div class="hardware-mark" id="vk01-connection-badge">
+        <span id="vk01-status-led" class="status-led"></span>
+        <span id="vk01-bridge-status-text">VK01 BRIDGE: ACTIVE</span>
+      </div>
+      <div>
+        <h1 class="app-title">VECTR // VK01 BIMODAL AI OPERATING SURFACE</h1>
+        <div class="app-subtitle">EYES SELECT THE NOUN · ROTARY ENCODER MODULATES THE VERB · CLICK COMMITS</div>
+      </div>
+    </div>
+
+    <div class="telemetry-readouts">
+      <div class="readout-chip" id="chip-system1-latency">
+        <span>JEV PASS:</span>
+        <strong id="jev-latency-val">21.4 ms</strong>
+      </div>
+      <div class="readout-chip" id="chip-diffusion-speed">
+        <span>DIFFUSIONGEMMA:</span>
+        <strong id="diff-speed-val">1,142 tok/s</strong>
+      </div>
+      <button id="btn-toggle-gaze" class="btn-instrument" type="button">
+        <span>◎ ENABLE WEBCAM GAZE</span>
+      </button>
+      <button id="btn-calibrate-gaze" class="btn-instrument" type="button" style="display: none;">
+        <span>⊹ 4-PT VK01 CALIBRATE</span>
+      </button>
+      <button id="btn-toggle-audio" class="btn-instrument" type="button">
+        <span id="audio-toggle-label">🔊 DETENT AUDIO: ON</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workbench Grid -->
+  <div class="workbench-shell">
+    <!-- Left Hardware Twin & Telemetry Rack -->
+    <aside class="hardware-rack" aria-label="ANTICATER VK01 Hardware Twin and Sensor Telemetry">
+      <!-- Module 1: CNC 6063 Aluminum VK01 Interactive Twin -->
+      <section class="rack-module" aria-labelledby="hdr-vk01-twin">
+        <div class="module-header">
+          <span id="hdr-vk01-twin" class="module-label">ANTICATER VK01 // 6063 CNC TWIN</span>
+          <span id="vk01-layer-badge" class="module-tag">FACTORY HID TAP</span>
+        </div>
+
+        <div class="vk01-stage">
+          <div
+            id="vk01-dial-interactive"
+            class="vk01-dial-assembly"
+            tabindex="0"
+            role="slider"
+            aria-label="ANTICATER VK01 Rotary Knob"
+            aria-valuemin="-24"
+            aria-valuemax="24"
+            aria-valuenow="0"
+            title="Turn physical VK01 knob, scroll wheel, or drag. Hold Shift / Push-Turn for Axis 2. Click to commit."
+          >
+            <svg class="vk01-tick-svg" viewBox="0 0 188 188" id="vk01-tick-ring"></svg>
+            <div class="vk01-cnc-housing" id="vk01-cnc-rotor">
+              <div class="vk01-knurl-ring"></div>
+              <div class="vk01-position-notch"></div>
+            </div>
+            <div class="vk01-center-cap">
+              <span class="cap-mode" id="knob-cap-mode">AXIS 1 // SCRUB</span>
+              <span class="cap-val" id="knob-cap-val">00°</span>
+            </div>
+          </div>
+
+          <!-- 5 Native Hardware Gestures Matrix (Clickable to test or triggered by physical VK01) -->
+          <div class="gesture-matrix">
+            <button type="button" class="gesture-cell" id="gest-ccw">
+              <span class="g-physical">1. ROTATE CCW (Vol-)</span>
+              <span class="g-mapping" id="map-lbl-ccw">← Rewind / Melt</span>
+            </button>
+            <button type="button" class="gesture-cell" id="gest-cw">
+              <span class="g-physical">2. ROTATE CW (Vol+)</span>
+              <span class="g-mapping" id="map-lbl-cw">Advance / Crystallize →</span>
+            </button>
+            <button type="button" class="gesture-cell" id="gest-push-ccw">
+              <span class="g-physical">4. PUSH+TURN CCW (Br-)</span>
+              <span class="g-mapping" id="map-lbl-pccw">≪ Prev Branch / Lens</span>
+            </button>
+            <button type="button" class="gesture-cell" id="gest-push-cw">
+              <span class="g-physical">5. PUSH+TURN CW (Br+)</span>
+              <span class="g-mapping" id="map-lbl-pcw">Next Branch / Lens ≫</span>
+            </button>
+            <button type="button" class="gesture-cell span-2" id="gest-click">
+              <span class="g-physical">3. SINGLE PRESS CLICK (Mute)</span>
+              <span class="g-mapping" id="map-lbl-click">● COMMIT / EXECUTE STATE</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module 2: Webcam Iris Gaze + 1€ Filter Spotlight -->
+      <section class="rack-module" aria-labelledby="hdr-gaze-sensor">
+        <div class="module-header">
+          <span id="hdr-gaze-sensor" class="module-label">OPTICAL GAZE // 1€ MAGNETIC LOCK</span>
+          <span id="gaze-mode-tag" class="module-tag">POINTER / HOVER</span>
+        </div>
+        <div class="webcam-viewport">
+          <video id="webcam-video" class="webcam-video" autoplay playsinline muted></video>
+          <canvas id="webcam-overlay-canvas" class="webcam-overlay-canvas"></canvas>
+          <div id="webcam-placeholder" class="webcam-placeholder">
+            <p>Look at any target card to snap theVK01's 2 rotary axes to that semantic container.</p>
+            <button id="btn-start-webcam-inline" class="btn-instrument primary-action" type="button">
+              Enable Live Webcam Iris Tracking
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module 3: Live macOS HID / Media Interceptor Stream -->
+      <section class="rack-module" aria-labelledby="hdr-hid-stream">
+        <div class="module-header">
+          <span id="hdr-hid-stream" class="module-label">MACOS HID / EVENTTAP TELEMETRY</span>
+          <span id="hid-counter-badge" class="module-tag">0 TICKS</span>
+        </div>
+        <div id="hid-log-list" class="hid-log-list" aria-live="polite">
+          <div class="hid-log-entry">
+            <span>Awaiting VK01 rotation or click...</span>
+            <span class="evt-src">READY</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Right Column: 3 Gaze-Snappable Bimodal AI Canvases -->
+    <main class="operating-field">
+      <!-- Dynamic Noun + Verb Context Bar -->
+      <div class="bimodal-context-strip" id="bimodal-context-strip">
+        <div class="noun-verb-readout">
+          <div class="nv-pill noun-active">
+            <span class="nv-tag">GAZED NOUN (TARGET):</span>
+            <span class="nv-val" id="active-noun-label">1. JEV-CLUTCH // SPECULATIVE COMPUTER USE</span>
+          </div>
+          <div class="nv-pill axis1-active">
+            <span class="nv-tag">AXIS 1 (ROTATE):</span>
+            <span class="nv-val" id="active-axis1-label">Scrub Predicted Future Horizon (t0 ↔ t+5)</span>
+          </div>
+          <div class="nv-pill axis2-active">
+            <span class="nv-tag">AXIS 2 (PUSH+ROTATE):</span>
+            <span class="nv-val" id="active-axis2-label">Switch JEV Action Branch (p1 ↔ p4) & Clutch τ</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-cycle-target" class="btn-instrument" type="button">
+            <span>⇄ CYCLE TARGET NOUN (Tab)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Target 1 (Full Width): Chronos / JEV-Clutch Speculative Computer Use -->
+      <article
+        id="target-card-jev"
+        class="semantic-target-card span-full gaze-locked"
+        data-target-id="jev"
+        tabindex="-1"
+      >
+        <div class="target-header">
+          <div class="target-title-group">
+            <h2>
+              <span>01 // CHRONOS &amp; JEV-CLUTCH</span>
+              <span class="module-tag">SYSTEM-1 TYPED DISTRIBUTIONS (21ms)</span>
+            </h2>
+            <p>
+              State in, calibrated <code>Choice</code> / <code>Score</code> / <code>Noul</code> distributions out—zero tokens decoded.
+              <strong>Turn VK01</strong> to scrub forward/backward through predicted computer-use actions; <strong>Push+Turn</strong> to switch probability branches; <strong>Click</strong> to execute.
+            </p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <select id="jev-scenario-select" class="input-instrument" aria-label="Select JEV Computer Use Scenario">
+              <option value="incident">Scenario A: Production Latency Rollback &amp; PagerDuty Triage</option>
+              <option value="flights">Scenario B: Browser-Use Flight Rebooking (Zürich → Tokyo)</option>
+              <option value="procurement">Scenario C: Autonomous Cloud GPU Spot Cluster Arbitrage</option>
+            </select>
+            <span class="target-lock-indicator" id="lock-badge-jev">◎ GAZE LOCKED</span>
+          </div>
+        </div>
+
+        <!-- Detent Scrubber Bar for Time Horizon t0 .. t+5 -->
+        <div class="detent-scrubber-bar">
+          <span class="module-label" style="min-width: 125px;">HORIZON DETENTS:</span>
+          <div class="detent-steps" id="jev-time-pips"></div>
+          <button id="btn-jev-commit" class="btn-instrument primary-action" type="button">
+            <span>● CLICK KNOB TO COMMIT HORIZON</span>
+          </button>
+        </div>
+
+        <div class="jev-layout">
+          <!-- Simulated Live Desktop / Browser DOM Target Surface -->
+          <div class="live-app-viewport" id="jev-live-viewport">
+            <div class="sim-window-bar">
+              <span id="jev-window-title">DOM STATE // prod-us-east-1.console.internal (14 indexed nodes)</span>
+              <span id="jev-horizon-clock">T+0ms // LIVE PRESENT</span>
+            </div>
+
+            <div class="dom-nodes-grid" id="jev-dom-grid"></div>
+
+            <!-- Animated Ghost Cursor & Speculative Trajectory Overlay -->
+            <div class="ghost-cursor-layer" id="jev-ghost-layer">
+              <div class="ghost-cursor-pin" id="jev-ghost-pin" style="left: 28%; top: 38%;">
+                <div class="ghost-reticle"></div>
+                <div class="ghost-tag" id="jev-ghost-label">CLICK #node-1 (91.4%)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- JEV Single-Pass Typed Decision Readout (Choice / Score / Noul) -->
+          <div class="jev-distributions-panel">
+            <div class="jev-primitive-block">
+              <div class="primitive-title">
+                <span>JEV PRIMITIVE 1 // CHOICE DISTRIBUTION (Push+Turn to Scrub)</span>
+                <span id="jev-active-branch-lbl">RANK #1</span>
+              </div>
+              <div id="jev-choice-bars" style="display: flex; flex-direction: column; gap: 6px;"></div>
+            </div>
+
+            <div class="noul-score-grid">
+              <div class="metric-box">
+                <div class="m-lbl">PRIMITIVE 2 // SCORE E[risk]</div>
+                <div class="m-num" id="jev-score-val">0.42 / 4.00</div>
+              </div>
+              <div class="metric-box">
+                <div class="m-lbl">PRIMITIVE 3 // NOUL P(safe)</div>
+                <div class="m-num" id="jev-noul-val" style="color: var(--signal-emerald);">96.8% &gt; τ(0.75)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Bottom Dual Grid: Target 2 (DiffusionGemma Entropy Sculptor) & Target 3 (Semantic Zoom Lens) -->
+      <div class="targets-grid">
+        <!-- Target 2: DiffusionGemma 26B-A4B Block-Diffusion Entropy Sculptor -->
+        <article
+          id="target-card-diffusion"
+          class="semantic-target-card"
+          data-target-id="diffusion"
+          tabindex="-1"
+        >
+          <div class="target-header">
+            <div class="target-title-group">
+              <h2>
+                <span>02 // DIFFUSIONGEMMA ENTROPY SCULPTOR</span>
+                <span class="module-tag">26B-A4B BLOCK DIFFUSION</span>
+              </h2>
+              <p>
+                256-token parallel canvas across 48 entropy-bounded steps.
+                <strong>Turn VK01 CCW</strong> to melt high-entropy words while structural anchors stay frozen; <strong>Push+Turn</strong> to steer architecture; <strong>Click</strong> to re-crystallize.
+              </p>
+            </div>
+            <span class="target-lock-indicator" id="lock-badge-diffusion">LOOK TO LOCK</span>
+          </div>
+
+          <div class="detent-scrubber-bar">
+            <span class="module-label">STEP <strong id="diff-step-num">36/48</strong> · η = <strong id="diff-eta-num">0.42</strong></span>
+            <div class="detent-steps" id="diffusion-step-pips"></div>
+          </div>
+
+          <div id="diffusion-canvas-box" class="diffusion-canvas-box" aria-live="polite"></div>
+
+          <div class="entropy-controls-row">
+            <form id="form-custom-diffusion" class="prompt-inject-form">
+              <input
+                id="input-diffusion-prompt"
+                class="input-instrument"
+                type="text"
+                placeholder="Enter custom code/spec prompt to diffuse on canvas..."
+                value="Zero-copy lock-free ring buffer with backpressure gate"
+              />
+              <button id="btn-synthesize-diffusion" class="btn-instrument" type="submit">
+                Diffuse Canvas
+              </button>
+            </form>
+            <span class="module-tag" id="diff-steering-badge">AXIS 2: 0 // CANONICAL BLOCK-DIFFUSION</span>
+          </div>
+        </article>
+
+        <!-- Target 3: Gaze-Locked Semantic Zoom & Ladder of Abstraction (-3 to +3) -->
+        <article
+          id="target-card-lens"
+          class="semantic-target-card"
+          data-target-id="lens"
+          tabindex="-1"
+        >
+          <div class="target-header">
+            <div class="target-title-group">
+              <h2>
+                <span>03 // GAZE + DIAL SEMANTIC LENS</span>
+                <span class="module-tag">ABSTRACTION L-3 ↔ L+3</span>
+              </h2>
+              <p>
+                Continuous semantic zoom with token-pinned layout morphing.
+                <strong>Turn VK01</strong> to scrub from a 3-word chip (`L-3`) to formal invariant audit (`L+3`); <strong>Push+Turn</strong> to shift Role Persona.
+              </p>
+            </div>
+            <span class="target-lock-indicator" id="lock-badge-lens">LOOK TO LOCK</span>
+          </div>
+
+          <div class="detent-scrubber-bar">
+            <span class="module-label">ZOOM DETENT:</span>
+            <div class="detent-steps" id="lens-level-pips"></div>
+          </div>
+
+          <div class="semantic-lens-stage">
+            <div id="abstraction-morph-content" class="abstraction-morph-content"></div>
+            <div class="lens-meta-footer">
+              <span id="lens-role-badge">ROLE LENS (AXIS 2): SYSTEMS ARCHITECT</span>
+              <span id="lens-compression-delta">COMPRESSION: 100% BASELINE (L0)</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
